@@ -113,7 +113,7 @@ if __name__ == '__main__':
             print (pri)
             api.update_with_media(get_weather_icon(), status=pri)
             time.sleep(18000)
-        break
+        
             
         
 #        city= "2643741	"
