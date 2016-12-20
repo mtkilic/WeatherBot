@@ -106,9 +106,11 @@ if __name__ == '__main__':
         cities_id = ['1816670','745044','2643741','3448439','5128581','5368361']
         city_names = ['Beijing','Istanbul','London','SaoPaulo','NewYorkCity','LosAngeles']
         for city, name in zip(cities_id, city_names):
-            current_weather = get_weather_json(city)['main']['temp']
-            temp_max = get_weather_json(city)['main']['temp_max']
-            temp_min = get_weather_json(city)['main']['temp_min']
+            current_weather, temp_max, temp_min = [get_weather_json(city)['main'][i] for i in ['temp', 'temp_max', 'temp_min']]
+            
+            #current_weather = get_weather_json(city)['main']['temp']
+            #temp_max = get_weather_json(city)['main']['temp_max']
+            #temp_min = get_weather_json(city)['main']['temp_min']
             pri = ('#{} Weather: Currently {} & {:.0f}°F. Expect a high of {:.0f}°F and a low of {:.0f}°F.'.format(name,get_weather_description(), current_weather,temp_max, temp_min))
             print (pri)
             api.update_with_media(get_weather_icon(), status=pri)
