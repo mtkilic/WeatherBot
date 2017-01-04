@@ -9,7 +9,7 @@ Created on Fri Dec 16 15:32:28 2016
 from __future__ import print_function
 from datetime import datetime, timedelta
 import json
-from urllib.request import urlopen
+import urllib
 
 import sys
 import os
@@ -46,6 +46,8 @@ auth.set_access_token(access_token, access_token_secret)
 
 api = tweepy.API(auth)
 
+tweets = api.search('weather today', geocode="39.8,-95.583068847656,2500km", count=10, lang="en")
+
 # If the authentication was successful, you should
 # see the name of the account print out
 print(api.me().name)
@@ -58,7 +60,7 @@ print(api.me().name)
 
 
 def get_weather_json(city):
-    req = urlopen("http://api.openweathermap.org/data/2.5/weather?id={}&units=imperial&appid={}".format(city, weather_api))
+    req = urllib.request.urlopen("http://api.openweathermap.org/data/2.5/weather?q={}&units=imperial&appid={}".format(city, weather_api))
     return json.loads(req.read().decode('utf8'))
     
 #def get_current_weather():
@@ -103,66 +105,30 @@ if __name__ == '__main__':
 
     while True:
         
-        cities_id = ['1816670','745044','2643741','3448439','5128581','5368361']
-        city_names = ['Beijing','Istanbul','London','SaoPaulo','NewYorkCity','LosAngeles']
-        for city, name in zip(cities_id, city_names):
+#        cities_id = ['1816670','745044','2643741','3448439','5128581','5368361']
+#        city_names = ['Beijing','Istanbul','London','SaoPaulo','NewYorkCity','LosAngeles']
+        
+        for tweet in tweets :
+            username = tweet.user.screen_name
+            user_id = tweet.id
+            text = tweet.text
+            city = tweet.user.location
+            city = str(city)
+            print(city)
+            tbaglanti = "https://twitter.com/{}/status/+{}".format(username, user_id)
+            
+        
+        
             current_weather, temp_max, temp_min = [get_weather_json(city)['main'][i] for i in ['temp', 'temp_max', 'temp_min']]
             
             #current_weather = get_weather_json(city)['main']['temp']
             #temp_max = get_weather_json(city)['main']['temp_max']
             #temp_min = get_weather_json(city)['main']['temp_min']
-            pri = ('#{} Weather: Currently {} & {:.0f}°F. Expect a high of {:.0f}°F and a low of {:.0f}°F.'.format(name,get_weather_description(), current_weather,temp_max, temp_min))
+            pri = ('{} @{} Weather: Currently {} & {:.0f}°F. Expect a high of {:.0f}°F and a low of {:.0f}°F.'.format(tbaglanti, username, get_weather_description(), current_weather,temp_max, temp_min))
             print (pri)
             api.update_with_media(get_weather_icon(), status=pri)
-            time.sleep(18000)
+            time.sleep(60)
         
             
         
-#        city= "2643741	"
-#        
-#        pri = ('#London Weather: Currently {} & {:.0f}°F. Expect a high of {:.0f}°F and a low of {:.0f}°F.'.format(get_weather_description(), get_current_weather(),get_temp_max(), get_temp_min()))
-#        
-#        print (pri)
-#
-#        #api.update_with_media(get_weather_icon(), status=pri)     # update status
-#        time.sleep(10)                            # wait 24 hours
-#        
-#        city = "745044"
-#        
-#        pri = ("#Istanbul Weather: Currently {} & {:.0f}°F. Expect a high of {:.0f}°F and a low of {:.0f}°F.".format(get_weather_description(), get_current_weather(),get_temp_max(), get_temp_min()))
-#        print(pri)        
-#        
-#        #api.update_with_media(get_weather_icon(), status=pri)     # update status
-#        time.sleep(10) 
-#        
-#        city = "524901"
-#        
-#        pri = ("#Moscow Weather: Currently {} & {:.0f}°F. Expect a high of {:.0f}°F and a low of {:.0f}°F.".format(get_weather_description(), get_current_weather(),get_temp_max(), get_temp_min()))
-#        print(pri)        
-#        
-#        #api.update_with_media(get_weather_icon(), status=pri)     # update status
-#        time.sleep(10)
-#        
-#        city = "1816670"
-#        
-#        pri = ("#Beijing Weather: Currently {} & {:.0f}°F. Expect a high of {:.0f}°F and a low of {:.0f}°F.".format(get_weather_description(), get_current_weather(),get_temp_max(), get_temp_min()))
-#        print(pri)        
-#        
-#        #api.update_with_media(get_weather_icon(), status=pri)     # update status
-#        time.sleep(10)
-#        
-#        city = "5128581"
-#        
-#        pri = ("New York City Weather: Currently {} & {:.0f}°F. Expect a high of {:.0f}°F and a low of {:.0f}°F #NYC".format(get_weather_description(), get_current_weather(),get_temp_max(), get_temp_min()))
-#        print(pri)        
-#        
-#        #api.update_with_media(get_weather_icon(), status=pri)     # update status
-#        time.sleep(10) 
-#        
-#        city = "5368361"
-#        
-#        pri = ("Los Angeles Weather: Currently {} & {:.0f}°F. Expect a high of {:.0f}°F and a low of {:.0f}°F #LA".format(get_weather_description(), get_current_weather(),get_temp_max(), get_temp_min()))
-#        print(pri)        
-#        
-#        #api.update_with_media(get_weather_icon(), status=pri)     # update status
-#        time.sleep(111130) 
+# 
