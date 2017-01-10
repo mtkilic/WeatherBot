@@ -6,12 +6,10 @@ Created on Fri Dec 16 15:32:28 2016
 """
 
 
-from __future__ import print_function
-from datetime import datetime, timedelta
-import json
-import urllib
 
-import sys
+
+import json
+import requests
 import os
 import tweepy
 import time
@@ -46,7 +44,7 @@ auth.set_access_token(access_token, access_token_secret)
 
 api = tweepy.API(auth)
 
-tweets = api.search('weather today', geocode="39.8,-95.583068847656,2500km", count=10, lang="en")
+
 
 # If the authentication was successful, you should
 # see the name of the account print out
@@ -56,21 +54,14 @@ print(api.me().name)
 # this line should tweet out the message to your account's
 # timeline. The "Read and Write" setting is on https://dev.twitter.com/apps
 
-#api.update_status(status='C3P0 is not evil! R2D2 is questionable!')
+
 
 
 def get_weather_json(city):
-    req = urllib.request.urlopen("http://api.openweathermap.org/data/2.5/weather?q={}&units=imperial&appid={}".format(city, weather_api))
-    return json.loads(req.read().decode('utf8'))
+    req = requests.get("http://api.openweathermap.org/data/2.5/weather?q={}&units=imperial&appid={}".format(city, weather_api))
+    return req.json()
     
-#def get_current_weather():
-#    return get_weather_json(city)['main']['temp']
-#    
-#def get_temp_max():
-#    return get_weather_json(city)['main']['temp_max']
-#
-#def get_temp_min():
-#    return get_weather_json(city)['main']['temp_min']
+
     
 def get_weather_icon():
     description = get_weather_json(city)['weather'][0]['description']
@@ -96,7 +87,8 @@ def get_weather_icon():
     elif description in ['mist','smoke','haze',"sand, dust whirls",'fog','sand','dust','volcanic ash','squalls','tornado']:
         icon =  fn + '/50d.png'
     return icon
-    
+ 
+   
 def get_weather_description():
     return get_weather_json(city)['weather'][0]['description']
     
@@ -104,31 +96,36 @@ def get_weather_description():
 if __name__ == '__main__':
 
     while True:
+        try:
         
-#        cities_id = ['1816670','745044','2643741','3448439','5128581','5368361']
-#        city_names = ['Beijing','Istanbul','London','SaoPaulo','NewYorkCity','LosAngeles']
+            tweets = api.search('weather today', geocode="39.8,-95.583068847656,2500km", count=10, lang="en")
+        except tweepy.RateLimitError:
+            time.sleep(60*15)
+            continue
         
         for tweet in tweets :
             username = tweet.user.screen_name
             user_id = tweet.id
             text = tweet.text
             city = tweet.user.location
-            city = str(city)
-            print(city)
-            tbaglanti = "https://twitter.com/{}/status/+{}".format(username, user_id)
+            print("User tweet is {}".format(text))
+            print("User name is @{}".format(username))
+            print("User city is {}".format(city))
+            print(".................................")
+            tbaglanti = "https://twitter.com/{}/status/{}".format(username, user_id)
             
         
-        
-            current_weather, temp_max, temp_min = [get_weather_json(city)['main'][i] for i in ['temp', 'temp_max', 'temp_min']]
             
-            #current_weather = get_weather_json(city)['main']['temp']
-            #temp_max = get_weather_json(city)['main']['temp_max']
-            #temp_min = get_weather_json(city)['main']['temp_min']
+            try:   
+                current_weather, temp_max, temp_min = [get_weather_json(city)['main'][i] for i in ['temp', 'temp_max', 'temp_min']]
+            except KeyError:
+                break
+                
             pri = ('{} @{} Weather: Currently {} & {:.0f}°F. Expect a high of {:.0f}°F and a low of {:.0f}°F.'.format(tbaglanti, username, get_weather_description(), current_weather,temp_max, temp_min))
             print (pri)
             api.update_with_media(get_weather_icon(), status=pri)
-            time.sleep(60)
-        
+            time.sleep(300)
+            
             
         
 # 
