@@ -100,7 +100,7 @@ if __name__ == '__main__':
         
             tweets = api.search('weather today', geocode="39.8,-95.583068847656,2500km", count=10, lang="en")
         except tweepy.RateLimitError:
-            time.sleep(60*15)
+            time.sleep(6000*15)
             continue
         
         for tweet in tweets :
@@ -124,7 +124,7 @@ if __name__ == '__main__':
             pri = ('{} @{} Weather: Currently {} & {:.0f}°F. Expect a high of {:.0f}°F and a low of {:.0f}°F.'.format(tbaglanti, username, get_weather_description(), current_weather,temp_max, temp_min))
             print (pri)
             api.update_with_media(get_weather_icon(), status=pri)
-            time.sleep(300)
+            time.sleep(30000)
             
             
         
